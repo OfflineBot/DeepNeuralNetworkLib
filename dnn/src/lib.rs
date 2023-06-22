@@ -1,5 +1,8 @@
-mod nn;
-use nn::{Matrix, Normalize};
+mod network;
+mod norm;
+
+use network::{Matrix};
+use norm::Normalize;
 
 use ndarray::{Array1, Array2};
 
