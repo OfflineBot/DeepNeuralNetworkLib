@@ -2,6 +2,8 @@ use ndarray::{Axis, Array1, Array2};
 use ndarray_rand::RandomExt;
 use rand::distributions::Uniform;
 
+use crate::norm::Normalize;
+
 #[allow(unused)]
 pub struct Matrix {
     w1: Array2<f64>,
@@ -27,3 +29,32 @@ impl Matrix {
     }
 }
 
+#[allow(unused)]
+pub struct TrainingData {
+    pub matrix: Matrix,
+    pub x_mean: Array1<f64>,
+    pub y_mean: Array1<f64>,
+    pub x_std: Array1<f64>,
+    pub y_std: Array1<f64>,
+}
+struct Forward {
+    z1: Array2<f64>,
+    a1: Array2<f64>,
+    z2: Array2<f64>,
+}
+struct Backward {
+    delta1: Array2<f64>,
+    delta2: Array2<f64>,
+}
+
+impl TrainingData {
+    pub fn train_network(iterations: usize, learning_rate: f64, matrix: Matrix, norm: &Normalize) -> Matrix {
+        matrix
+    }
+    fn forward() -> Forward {
+
+    }
+    fn backward() -> Backward {
+
+    }
+}

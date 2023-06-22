@@ -1,4 +1,6 @@
 use ndarray::{Array1, Array2, Axis};
+use std::io;
+
 pub struct Normalize {
     pub x: Array2<f64>,
     pub y: Array2<f64>,
@@ -11,7 +13,7 @@ pub struct Normalize {
 }
 
 impl Normalize {
-    pub fn normalize(x: Array2<f64>, y: Array2<f64>) -> Normalize {
+    pub fn normalize(x: Array2<f64>, y: Array2<f64>) -> Result<Normalize, io::Error> {
         let x_mean: Array1<f64> = x.mean_axis(Axis(0)).unwrap();
         let y_mean: Array1<f64> = y.mean_axis(Axis(0)).unwrap();
         let x_std_pre: Array1<f64> = x.std_axis(Axis(0), 0.0);
@@ -30,8 +32,7 @@ impl Normalize {
         });
         let x_norm: Array2<f64> = (&x - &x_mean) / &x_std;
         let y_norm: Array2<f64> = (&y - &y_mean) / &y_std;
-
-        Normalize {
+        Ok(Normalize {
             x,
             y,
             x_mean,
@@ -40,6 +41,6 @@ impl Normalize {
             y_std,
             x_norm,
             y_norm,
-        }
+        })
     }
 }
