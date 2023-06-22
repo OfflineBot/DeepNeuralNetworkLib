@@ -4,6 +4,21 @@ use rand::distributions::Uniform;
 
 use crate::norm::Normalize;
 
+struct Activation;
+impl Activation {
+    fn relu(data: &Array2<f64>) -> Array2<f64> {
+        
+    }
+    fn deriv_relu(data: &Array2<f64>) -> Array2<f64> {
+
+    }
+    fn sigmoid(data: &Array2<f64>) -> Array2<f64> {
+
+    }
+    fn deriv_sigmoid(data: &Array2<f64>) -> Array2<f64> {
+
+    }
+}
 #[allow(unused)]
 pub struct Matrix {
     w1: Array2<f64>,
@@ -51,8 +66,15 @@ impl TrainingData {
     pub fn train_network(iterations: usize, learning_rate: f64, matrix: Matrix, norm: &Normalize) -> Matrix {
         matrix
     }
-    fn forward() -> Forward {
-
+    fn forward(norm: Normalize, matrix: Matrix) -> Forward {
+        let z1: Array2<f64> = norm.x_norm.dot(&matrix.w1) + &matrix.b1;
+        let a1: Array2<f64> = Activation::relu(&z1);
+        let z2: Array2<f64> = a1.dot(&matrix.w2) + &matrix.b2;
+        Forward {
+            z1, 
+            a1, 
+            z2,
+        }
     }
     fn backward() -> Backward {
 
