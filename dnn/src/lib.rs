@@ -42,4 +42,6 @@ pub fn train(
     ))
 }
 
-pub fn calculate_new_data(data: Array2<f64>, training_data: TrainingData) {}
+pub fn calculate_new_data(data: Array2<f64>, training_data: TrainingData) {
+    TrainingData::print_test(data, training_data);
+}

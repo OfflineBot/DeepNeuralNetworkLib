@@ -8,5 +8,5 @@ fn main() {
     let activation: ActivationFunction = ActivationFunction::ReLu;
 
     let output = dnn::train(10_000, 0.001, 10, activation, input_data, output_data).unwrap();
-    dnn::calculate_new_data(new_data, output.0);
+    calculate_new_data(new_data, output.0);
 }

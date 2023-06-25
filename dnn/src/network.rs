@@ -111,7 +111,7 @@ impl TrainingData {
     }
     fn backward(matrix: &Matrix, forward: &Forward, norm: &Normalize) -> Backward {
         let delta2: Array2<f64> = &forward.z2 - &norm.y_norm;
-        let delta1: Array2<f64> = delta2.dot(&matrix.w1.t()) * Activation::deriv_relu(&forward.z1);
+        let delta1: Array2<f64> = delta2.dot(&matrix.w2.t()) * Activation::deriv_relu(&forward.z1);
         Backward { delta1, delta2 }
     }
     fn update_matrix(
@@ -126,5 +126,14 @@ impl TrainingData {
         matrix.w2 = matrix.w2 - learning_rate * forward.a1.t().dot(&delta.delta2);
         matrix.b2 = matrix.b2 - learning_rate * delta.delta2.sum_axis(Axis(0));
         matrix
+    }
+    pub fn print_test(data: Array2<f64>, training_data: TrainingData) {
+        let matrix = training_data.matrix;
+        let data_norm: Array2<f64> = (data - training_data.x_mean) / training_data.x_std;
+        let z1: Array2<f64> = data_norm.dot(&matrix.w1) + &matrix.b1;
+        let a1: Array2<f64> = Activation::relu(&z1);
+        let z2: Array2<f64> = a1.dot(&matrix.w2) + &matrix.b2; 
+        let data_out: Array2<f64> = z2 * training_data.y_std + training_data.y_mean;
+        println!("OUT\n{}", data_out);
     }
 }
