@@ -1,9 +1,9 @@
 # Deep Neural Network Library written in Rust
 
 ## How to use the Library (for now)
-# Import it inside the Cargo.toml
+### Import it inside the Cargo.toml
 + dnn = { git = "https://github.com/OfflineBot/DeepNeuralNetworkLib" }
-# Then code:
+### Then code:
 1. Define how many iterations it should do.
 2. Define the learning rate.
 3. Define how big the hidden layer size should be.
