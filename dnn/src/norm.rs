@@ -18,13 +18,13 @@ impl Normalize {
         let y_mean: Array1<f64> = y.mean_axis(Axis(0)).unwrap();
         let x_std_pre: Array1<f64> = x.std_axis(Axis(0), 0.0);
         let y_std_pre: Array1<f64> = y.std_axis(Axis(0), 0.0);
-        let x_std = x_std_pre.mapv(|mut x| {
+        let x_std: Array1<f64> = x_std_pre.mapv(|mut x| {
             if x == 0.0 {
                 x = 1e-10;
             }
             x
         });
-        let y_std = y_std_pre.mapv(|mut x| {
+        let y_std: Array1<f64> = y_std_pre.mapv(|mut x| {
             if x == 0.0 {
                 x = 1e-10;
             }

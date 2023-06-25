@@ -1,3 +1,6 @@
 /target
 /dnn/target
 .vscode
+/src
+/Cargo.toml
+/Cargo.lock
