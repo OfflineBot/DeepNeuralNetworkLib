@@ -22,9 +22,12 @@ pub fn train(
     input_data: Array2<f64>,
     output_data: Array2<f64>,
 ) -> Result<(TrainingData, Detail), io::Error> {
+
     let norm: Normalize = Normalize::normalize(input_data, output_data).unwrap();
     let matrix: Matrix = Matrix::he_matrix(&norm.x_norm, &norm.y_norm, hidden_layer_size);
-    let new_matrix: Matrix = TrainingData::train_network(iterations, learning_rate, matrix, &norm);
+    let new_matrix: Matrix = TrainingData::train_network(iterations, learning_rate, matrix, &norm, &activation);
+
+
     Ok((
         TrainingData {
             matrix: new_matrix,
@@ -42,6 +45,6 @@ pub fn train(
     ))
 }
 
-pub fn calculate_new_data(data: Array2<f64>, training_data: TrainingData) {
-    TrainingData::print_test(data, training_data);
+pub fn calculate_new_data(data: Array2<f64>, training_data: TrainingData, detail: Detail) {
+    TrainingData::print_test(data, training_data, detail);
 }

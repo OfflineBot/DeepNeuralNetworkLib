@@ -6,6 +6,7 @@ use crate::{norm::Normalize, ActivationFunction};
 
 struct Activation;
 impl Activation {
+
     #[allow(unused)]
     fn relu(data: &Array2<f64>) -> Array2<f64> {
         let mut new_data: Array2<f64> = data.clone();
@@ -16,6 +17,7 @@ impl Activation {
         });
         new_data
     }
+
     #[allow(unused)]
     fn deriv_relu(data: &Array2<f64>) -> Array2<f64> {
         let mut new_data: Array2<f64> = data.clone();
@@ -28,16 +30,19 @@ impl Activation {
         });
         new_data
     }
+
     #[allow(unused)]
     fn sigmoid(data: &Array2<f64>) -> Array2<f64> {
         1.0 / (1.0 + data.mapv(|x| (-x).exp()))
     }
+
     #[allow(unused)]
     fn deriv_sigmoid(data: &Array2<f64>) -> Array2<f64> {
         let sig: Array2<f64> = Activation::sigmoid(&data);
         sig.clone() * (1.0 - sig)
     }
 }
+
 #[allow(unused)]
 pub struct Matrix {
     w1: Array2<f64>,
@@ -76,44 +81,75 @@ pub struct TrainingData {
     pub x_std: Array1<f64>,
     pub y_std: Array1<f64>,
 }
+
 struct Forward {
     z1: Array2<f64>,
     a1: Array2<f64>,
     z2: Array2<f64>,
 }
+
 struct Backward {
     delta1: Array2<f64>,
     delta2: Array2<f64>,
 }
 
 impl TrainingData {
+
     pub fn train_network(
         iterations: usize,
         learning_rate: f64,
         mut matrix: Matrix,
         norm: &Normalize,
+        activation: &ActivationFunction,
     ) -> Matrix {
         for i in 0..=iterations {
             if i % 1_000 == 0 {
                 println!("{:.2}%", i as f64 / iterations as f64 * 100.0);
             }
-            let forward: Forward = TrainingData::forward(&norm, &matrix);
-            let backward: Backward = TrainingData::backward(&matrix, &forward, &norm);
-            matrix = TrainingData::update_matrix(matrix, &forward, &backward, &norm, learning_rate);
+
+            match activation {
+                ActivationFunction::ReLu => {
+                    let forward: Forward = TrainingData::forward_relu(&norm, &matrix);
+                    let backward: Backward = TrainingData::backward_relu(&matrix, &forward, &norm);
+                    matrix = TrainingData::update_matrix(matrix, &forward, &backward, &norm, learning_rate);
+                }
+                ActivationFunction::Sigmoid => {
+                    let forward: Forward = TrainingData::forward_sigmoid(&norm, &matrix);
+                    let backward: Backward = TrainingData::backward_sigmoid(&matrix, &forward, &norm);
+                    matrix = TrainingData::update_matrix(matrix, &forward, &backward, &norm, learning_rate);
+                }
+            }
+            
         }
         matrix
     }
-    fn forward(norm: &Normalize, matrix: &Matrix) -> Forward {
+
+    fn forward_relu(norm: &Normalize, matrix: &Matrix) -> Forward {
         let z1: Array2<f64> = norm.x_norm.dot(&matrix.w1) + &matrix.b1;
         let a1: Array2<f64> = Activation::relu(&z1);
         let z2: Array2<f64> = a1.dot(&matrix.w2) + &matrix.b2;
         Forward { z1, a1, z2 }
     }
-    fn backward(matrix: &Matrix, forward: &Forward, norm: &Normalize) -> Backward {
+
+    fn backward_relu(matrix: &Matrix, forward: &Forward, norm: &Normalize) -> Backward {
         let delta2: Array2<f64> = &forward.z2 - &norm.y_norm;
         let delta1: Array2<f64> = delta2.dot(&matrix.w2.t()) * Activation::deriv_relu(&forward.z1);
         Backward { delta1, delta2 }
     }
+
+    fn forward_sigmoid(norm: &Normalize, matrix: &Matrix) -> Forward {
+        let z1: Array2<f64> = norm.x_norm.dot(&matrix.w1) + &matrix.b1;
+        let a1: Array2<f64> = Activation::sigmoid(&z1);
+        let z2: Array2<f64> = a1.dot(&matrix.w2) + &matrix.b2;
+        Forward { z1, a1, z2 }
+    }
+
+    fn backward_sigmoid(matrix: &Matrix, forward: &Forward, norm: &Normalize) -> Backward {
+        let delta2: Array2<f64> = &forward.z2 - &norm.y_norm;
+        let delta1: Array2<f64> = delta2.dot(&matrix.w2.t()) * Activation::deriv_sigmoid(&forward.z1);
+        Backward { delta1, delta2 }
+    }
+    
     fn update_matrix(
         mut matrix: Matrix,
         forward: &Forward,
@@ -127,12 +163,20 @@ impl TrainingData {
         matrix.b2 = matrix.b2 - learning_rate * delta.delta2.sum_axis(Axis(0));
         matrix
     }
-    pub fn print_test(data: Array2<f64>, training_data: TrainingData) {
+
+    pub fn print_test(data: Array2<f64>, training_data: TrainingData, detail: Detail) {
         let matrix = training_data.matrix;
         let data_norm: Array2<f64> = (data - training_data.x_mean) / training_data.x_std;
         let z1: Array2<f64> = data_norm.dot(&matrix.w1) + &matrix.b1;
-        let a1: Array2<f64> = Activation::relu(&z1);
-        let z2: Array2<f64> = a1.dot(&matrix.w2) + &matrix.b2; 
+        let a1: Array2<f64> = match detail.activation_function {
+            ActivationFunction::ReLu => {
+                Activation::relu(&z1)
+            }
+            ActivationFunction::Sigmoid => {
+                Activation::relu(&z1)
+            }
+        };
+        let z2: Array2<f64> = a1.dot(&matrix.w2) + &matrix.b2;
         let data_out: Array2<f64> = z2 * training_data.y_std + training_data.y_mean;
         println!("OUT\n{}", data_out);
     }
